@@ -31,7 +31,7 @@ object EmojiData {
         EmojiCategory(
             id = "gestures",
             icon = "👍",
-            name = "Qo‘llar va yuraklar",
+            name = "Qöllar va yuraklar",
             emojis = listOf(
                 "👋", "🤚", "🖐️", "✋", "🖖", "🫱", "🫲", "🫳", "🫴", "👌",
                 "🤌", "🤏", "✌️", "🤞", "🫰", "🤟", "🤘", "🤙", "🫵", "👈",
@@ -68,7 +68,7 @@ object EmojiData {
         EmojiCategory(
             id = "food",
             icon = "🍎",
-            name = "Taom va ichimlik",
+            name = "Taom va içimlik",
             emojis = listOf(
                 "🍏", "🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐",
                 "🍈", "🍒", "🍑", "🥭", "🍍", "🥥", "🥝", "🍅", "🍆", "🥑",

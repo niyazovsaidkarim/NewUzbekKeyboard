@@ -131,7 +131,7 @@ class OnboardingActivity : AppCompatActivity() {
             !isEnabled -> {
                 cardStatusBanner.strokeColor = colorActiveYellow
                 tvStatusIcon.text = "1️⃣"
-                tvStatusText.text = "1-bosqich: «Özbek Keyboard»ni tizim sozlamalarida yoqing."
+                tvStatusText.text = "1-bosqiç: «Özbek Keyboard»ni tizim sozlamalarida yoqing."
 
                 // Step 1 Active
                 cardStep1.alpha = 1.0f
@@ -165,7 +165,7 @@ class OnboardingActivity : AppCompatActivity() {
             isEnabled && !isSelected -> {
                 cardStatusBanner.strokeColor = colorActiveOrange
                 tvStatusIcon.text = "2️⃣"
-                tvStatusText.text = "✓ 1-bosqich bajarildi! Endi «Özbek Keyboard»ni standart klaviatura qilib tanlang."
+                tvStatusText.text = "✓ 1-bosqiç bajarildi! Endi «Özbek Keyboard»ni standart klaviatura qilib tanlang."
 
                 // Step 1 Completed
                 cardStep1.alpha = 0.85f
@@ -200,7 +200,7 @@ class OnboardingActivity : AppCompatActivity() {
             isEnabled && isSelected -> {
                 cardStatusBanner.strokeColor = colorSuccessGreen
                 tvStatusIcon.text = "🎉"
-                tvStatusText.text = "Özbek Keyboard to‘liq faollashtirildi va tanlandi! Sinab ko‘rishingiz mumkin."
+                tvStatusText.text = "Özbek Keyboard töliq faollaştirildi va tanlandi! Sinab körişingiz mumkin."
 
                 // Step 1 Completed
                 cardStep1.alpha = 0.8f
@@ -234,21 +234,21 @@ class OnboardingActivity : AppCompatActivity() {
 
     private fun showRestrictedSettingsDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Samsung va Android 13/14/15 cheklovi")
+            .setTitle("Samsung va Android 13/14/15 çeklovi")
             .setMessage(
-                "Agar klaviatura kaliti yoqilmasa yoki 'Cheklangan sozlama' (Restricted Setting) xabari chiqsa:\n\n" +
-                "1. Quyidagi 'Ilova ma'lumotlarini ochish' tugmasini bosing.\n" +
-                "2. Yuqori o‘ng burchakdagi 3 ta nuqtani (⋮) bosing.\n" +
-                "3. «Cheklangan sozlamalarga ruxsat berish» (Allow restricted settings) bandini tanlang va PIN kodingizni kiriting.\n" +
-                "4. Shundan so‘ng bu yerga qaytib, klaviaturani bemalol yoqishingiz mumkin."
+                "Agar klaviatura kaliti yoqilmasa yoki 'Çeklangan sozlama' (Restricted Setting) xabari çiqsa:\n\n" +
+                "1. Quyidagi 'Ilova maʼlumotlarini oçiş' tugmasini bosing.\n" +
+                "2. Yuqori öng burçakdagi 3 ta nuqtani (⋮) bosing.\n" +
+                "3. «Çeklangan sozlamalarga ruxsat beriş» (Allow restricted settings) bandini tanlang va PIN kodingizni kiriting.\n" +
+                "4. Şundan söng bu yerga qaytib, klaviaturani bemalol yoqişingiz mumkin."
             )
-            .setPositiveButton("Ilova ma'lumotlarini ochish") { _, _ ->
+            .setPositiveButton("Ilova maʼlumotlarini oçiş") { _, _ ->
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", packageName, null)
                 }
                 startActivity(intent)
             }
-            .setNegativeButton("Yopish", null)
+            .setNegativeButton("Yopiş", null)
             .show()
     }
 

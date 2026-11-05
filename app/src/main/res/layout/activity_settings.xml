@@ -479,7 +479,7 @@
             android:id="@+id/btnReset"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Barcha sozlamalarni tiklash"
+            android:text="Barça sozlamalarni tiklaş"
             android:textColor="#FF6B6B"
             android:backgroundTint="#2E1E1E"
             app:cornerRadius="10dp"

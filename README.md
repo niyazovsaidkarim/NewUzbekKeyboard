@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
 [![Privacy](https://img.shields.io/badge/Privacy-100%25%20Offline%20(Zero%20Network)-success.svg)](SECURITY.md)
 
-[**English**](#english) | [**O‘zbekcha**](#ozbekcha)
+[**English**](#english) | [**Özbekça**](#ozbekca)
 
 ---
 
@@ -90,45 +90,45 @@ The compiled APK will be located at:
 
 ---
 
-<a name="ozbekcha"></a>
-## O‘zbekcha
+<a name="ozbekca"></a>
+## Özbekça
 
 ### Ilova haqida
 
-**Özbek Keyboard** (`uz.ozbekkeyboard`) — O‘zbek tili uchun maxsus ishlab chiqilgan, Samsung One UI dizayn tizimiga asoslangan, tezkor va 100% oflayn Android tizim klaviaturasi (IME).
+**Özbek Keyboard** (`uz.ozbekkeyboard`) — Özbek tili uçun maxsus işlab çiqilgan, Samsung One UI dizayn tizimiga asoslangan, tezkor va 100% oflayn Android tizim klaviaturasi (IME).
 
-Bu ilova Android tizimining rasmiy `InputMethodService` va `InputConnection` arxitekturasida yaratilgan to‘laqonli tizim klaviaturasidir. Uni Telegram, WhatsApp, Chrome, Instagram, SMS va barcha dasturlarda asosiy klaviatura sifatida ishlatish mumkin.
+Bu ilova Android tizimining rasmiy `InputMethodService` va `InputConnection` arxitekturasida yaratilgan tölaqonli tizim klaviaturasidir. Uni Telegram, WhatsApp, Chrome, Instagram, SMS va barça dasturlarda asosiy klaviatura sifatida işlatiş mumkin.
 
-Klaviatura mutlaqo **oflayn** ishlaydi: **internetga ulanish ruxsati (INTERNET) mavjud emas**, hech qanday reklama, keylogger yoki tahlil kodlari kiritilmagan.
+Klaviatura mutlaqo **oflayn** işlaydi: **internetga ulaniş ruxsati (INTERNET) mavjud emas**, heç qanday reklama, keylogger yoki tahlil kodlari kiritilmagan.
 
 ---
 
 ### Asosiy Imkoniyatlar
 
 1. **Rasmiy Alifbo va Taklif Qilingan Islohot Belgilari:**
-   - **Amaldagi rasmiy alifbo (1995-yilgi qonun):** O‘zbekiston Respublikasining amaldagi qonuniy lotin alifbosi, shu jumladan rasmiy tutuq belgisi (`ʼ` - U+02BC) va an’anaviy harf birikmalari (`oʻ`, `gʻ`, `sh`, `ch`) to‘liq va asosiy tarzda qo‘llab-quvvatlanadi.
-   - **Taklif etilgan islohot harflari (qonun loyihasi):** Yangi muhokama qilinayotgan alifbo loyihasidagi maxsus belgilar (`o → ö`, `g → ğ`, `s → ş`, `c → ç` va ularning bosh harflari) tugmalarni uzoq bosish (long-press) orqali kiritish uchun qulay taqdim etilgan. Bu rasmiy alifboda yozuvchilarga ham, yangi loyihani sinovdan o‘tkazuvchilarga ham teng qulaylik yaratadi.
-2. **Space (Bo‘sh joy) Trekpadi 2.0:**
-   - Bo‘sh joy tugmasini uzoq bosish yoki gorizontal siljitish orqali kursor boshqariladi.
-   - Matn ichidagi murakkab emojilar (masalan, 🇺🇿) va harf guruhlari buzilmasdan, yaxlit harakatlanadi.
-   - Trekpaddan foydalanish vaqtida xatolik bilan ortiqcha bo‘sh joy belgisi yozilib qolmaydi.
+   - **Amaldagi rasmiy alifbo (1995-yilgi qonun):** Özbekiston Respublikasining amaldagi qonuniy lotin alifbosi, şu jumladan rasmiy tutuq belgisi (`ʼ` - U+02BC) va anʼanaviy harf birikmalari (`oʻ`, `gʻ`, `sh`, `ch`) töliq va asosiy tarzda qöllab-quvvatlanadi.
+   - **Taklif etilgan islohot harflari (qonun loyihasi):** Yangi muhokama qilinayotgan alifbo loyihasidagi maxsus belgilar (`o → ö`, `g → ğ`, `s → ş`, `c → ç` va ularning boş harflari) tugmalarni uzoq bosiş (long-press) orqali kiritiş uçun qulay taqdim etilgan. Bu rasmiy alifboda yozuvçilarga ham, yangi loyihani sinovdan ötqazuvçilarga ham teng qulaylik yaratadi.
+2. **Space (Böş joy) Trekpadi 2.0:**
+   - Böş joy tugmasini uzoq bosiş yoki gorizontal siljitiş orqali kursor boşqariladi.
+   - Matn içidagi murakkab emojilar (masalan, 🇺🇿) va harf guruhlari buzilmasdan, yaxlit harakatlanadi.
+   - Trekpaddan foydalaniş vaqtida xatolik bilan ortiqça böş joy belgisi yozilib qolmaydi.
 3. **Samsung One UI Uslubidagi Dizayn:**
    - Samsung uslubidagi maxsus Backspace tugmasi.
-   - To‘rtta zamonaviy mavzu: **Qora va sariq (Yuqori kontrast)**, **Minimal oq**, **Minimal qora** va **Tizimga moslashuvchan**.
+   - Törtta zamonaviy mavzu: **Qora va sariq (Yuqori kontrast)**, **Minimal oq**, **Minimal qora** va **Tizimga moslaşuvçan**.
    - Ixtiyoriy raqamlar qatori (`1`–`0`).
-4. **2 Sahifali To‘liq Belgilar Paneli:**
-   - Barcha matematik amallar, valyuta va tinish belgilari.
-   - `!#1` va `ABC` o‘rtasida almashishda tugmalar yo‘qolib qolmaydi.
+4. **2 Sahifali Töliq Belgilar Paneli:**
+   - Barça matematik amallar, valyuta va tiniş belgilari.
+   - `!#1` va `ABC` örtasida almaşişda tugmalar yöqolib qolmaydi.
 
 ---
 
-### O‘rnatish va Faollashtirish
+### Örnatiş va Faollaştiriş
 
-1. Tayyor `OzbekKeyboard-v2.1.apk` faylini yuklab oling va o‘rnating.
-2. **Özbek Keyboard** ilovasini oching:
+1. Tayyor `OzbekKeyboard-v2.1.apk` faylini yuklab oling va örnating.
+2. **Özbek Keyboard** ilovasini oçing:
    - **1-qadam:** Tizim sozlamalaridan klaviaturani yoqing.
-   - **2-qadam:** Standart kiritish usuli sifatida Özbek Keyboardni tanlang.
-   - **3-qadam:** Sinov maydonida yozib ko‘ring.
+   - **2-qadam:** Standart kiritiş usuli sifatida Özbek Keyboardni tanlang.
+   - **3-qadam:** Sinov maydonida yozib köring.
 
 ---
 

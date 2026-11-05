@@ -41,7 +41,7 @@ Execute the following checklist on a physical Samsung device running One UI:
 
 ### Typing & Modes
 - [ ] Open **Telegram** or **Samsung Notes**. Focus text input.
-- [ ] Type standard Uzbek sentence: `Oʻzbekiston kelajagi buyuk davlatdir.`
+- [ ] Type standard Uzbek sentence: `Özbekiston kelajagi buyuk davlatdir.`
 - [ ] Long-press `o` → slide to select `ö` → verify `ö` inserts cleanly without extra `o`.
 - [ ] Long-press `g` → slide to select `ğ` → verify `ğ` inserts cleanly.
 - [ ] Long-press `s` → slide to select `ş` → verify `ş` inserts cleanly.
@@ -53,8 +53,8 @@ Execute the following checklist on a physical Samsung device running One UI:
 - [ ] Tap `ABC` → verify QWERTY layout restores instantly.
 
 ### Space Trackpad 2.0
-- [ ] Type a multi-word sentence: `Toshkent goʻzal shahar`.
-- [ ] Press and hold the Space bar (`Özbekcha`) for >300ms.
+- [ ] Type a multi-word sentence: `Toşkent gözal şahar`.
+- [ ] Press and hold the Space bar (`Özbekça`) for >300ms.
 - [ ] Observe subtle haptic buzz and visual highlight.
 - [ ] Drag finger left and right across the spacebar.
 - [ ] Confirm cursor moves smoothly between characters.

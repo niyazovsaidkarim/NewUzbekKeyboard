@@ -205,7 +205,7 @@ object KeyboardLayout {
                 weight = 1.0f
             ),
             Key(
-                primaryText = "Özbekcha",
+                primaryText = "Özbekça",
                 type = KeyType.SPACE,
                 weight = 4.2f
             ),

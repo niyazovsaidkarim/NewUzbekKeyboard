@@ -47,7 +47,7 @@ class KeyboardLayoutTest {
         assertEquals(KeyType.GLOBE, bottomRow[1].type)
         assertEquals(KeyType.COMMA, bottomRow[2].type)
         assertEquals(KeyType.SPACE, bottomRow[3].type)
-        assertEquals("Özbekcha", bottomRow[3].primaryText)
+        assertEquals("Özbekça", bottomRow[3].primaryText)
         assertTrue("Space key must be significantly wider than surrounding keys", bottomRow[3].weight >= 3.0f)
         assertEquals(KeyType.PERIOD, bottomRow[4].type)
         assertEquals(KeyType.ENTER, bottomRow[5].type)

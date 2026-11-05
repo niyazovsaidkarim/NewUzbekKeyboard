@@ -37,8 +37,21 @@ object TextEditorHelper {
         val iterator = BreakIterator.getCharacterInstance()
         iterator.setText(textBeforeCursor)
         val end = iterator.last()
-        val start = iterator.previous()
+        var start = iterator.previous()
         return if (start != BreakIterator.DONE && end > start) {
+            // Defensive check for Regional Indicator emoji flag pairs on JVMs lacking full UAX #29 RI pairing
+            if (start > 0 && start < textBeforeCursor.length) {
+                val cpAfter = Character.codePointAt(textBeforeCursor, start)
+                val cpBefore = Character.codePointBefore(textBeforeCursor, start)
+                if (isRegionalIndicator(cpAfter) && isRegionalIndicator(cpBefore)) {
+                    val prev = iterator.previous()
+                    if (prev != BreakIterator.DONE) {
+                        start = prev
+                    } else {
+                        start = Character.offsetByCodePoints(textBeforeCursor, start, -1)
+                    }
+                }
+            }
             end - start
         } else {
             1
@@ -79,24 +92,48 @@ object TextEditorHelper {
 
         if (steps > 0) {
             for (i in 0 until steps) {
-                val next = iterator.following(targetPos)
+                var next = iterator.following(targetPos)
                 if (next == BreakIterator.DONE) {
                     targetPos = fullText.length
                     break
+                }
+                if (next > 0 && next < fullText.length) {
+                    val cpBefore = Character.codePointBefore(fullText, next)
+                    val cpAfter = Character.codePointAt(fullText, next)
+                    if (isRegionalIndicator(cpBefore) && isRegionalIndicator(cpAfter)) {
+                        val skip = iterator.following(next)
+                        if (skip != BreakIterator.DONE) {
+                            next = skip
+                        }
+                    }
                 }
                 targetPos = next
             }
         } else {
             for (i in 0 until -steps) {
-                val prev = iterator.preceding(targetPos)
+                var prev = iterator.preceding(targetPos)
                 if (prev == BreakIterator.DONE) {
                     targetPos = 0
                     break
+                }
+                if (prev > 0 && prev < fullText.length) {
+                    val cpBefore = Character.codePointBefore(fullText, prev)
+                    val cpAfter = Character.codePointAt(fullText, prev)
+                    if (isRegionalIndicator(cpBefore) && isRegionalIndicator(cpAfter)) {
+                        val skip = iterator.preceding(prev)
+                        if (skip != BreakIterator.DONE) {
+                            prev = skip
+                        }
+                    }
                 }
                 targetPos = prev
             }
         }
         return targetPos
+    }
+
+    private fun isRegionalIndicator(codePoint: Int): Boolean {
+        return codePoint in 0x1F1E6..0x1F1FF
     }
 
     /**
