@@ -5,6 +5,8 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import uz.ozbekkeyboard.clipboard.ClipboardHelper
 import uz.ozbekkeyboard.ime.KeyboardActionListener
 import uz.ozbekkeyboard.settings.KeyboardSettings
@@ -65,6 +67,22 @@ class KeyboardRootView @JvmOverloads constructor(
         emojiPanelView.onBackToKeyboard = { showMainKeyboard() }
         clipboardPanelView.onBackToKeyboard = { showMainKeyboard() }
         noticePanelView.onBackToKeyboard = { showMainKeyboard() }
+
+        // Window Insets listener for gesture bar and navigation bar padding
+        ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+            val navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val density = resources.displayMetrics.density
+            val minBottom = (4f * density).toInt()
+            val bottomPad = if (navInsets.bottom > 0) navInsets.bottom else minBottom
+            setPadding(paddingLeft, paddingTop, paddingRight, bottomPad)
+            insets
+        }
+    }
+
+    fun isSubpanelShowing(): Boolean {
+        return emojiPanelView.visibility == View.VISIBLE ||
+                clipboardPanelView.visibility == View.VISIBLE ||
+                noticePanelView.visibility == View.VISIBLE
     }
 
     fun showMainKeyboard() {

@@ -2,8 +2,10 @@ package uz.ozbekkeyboard.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -81,6 +83,7 @@ class KeyboardView @JvmOverloads constructor(
     private var selectedPopupIndex: Int = -1
     private val popupBounds = RectF()
     private val variantBounds = mutableListOf<RectF>()
+    private val variantBoundsPool = List(10) { RectF() }
 
     // Backspace continuous repeat
     private var isBackspaceRepeating: Boolean = false
@@ -92,9 +95,34 @@ class KeyboardView @JvmOverloads constructor(
 
     // Drawable caches
     private val iconCache = mutableMapOf<Int, Drawable>()
+    private var audioManager: AudioManager? = null
 
     init {
+        audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
         reloadLayout()
+    }
+
+    private fun playSound(keyType: KeyType) {
+        if (settings.soundOnPress) {
+            val fx = when (keyType) {
+                KeyType.SPACE -> AudioManager.FX_KEYPRESS_SPACEBAR
+                KeyType.BACKSPACE -> AudioManager.FX_KEYPRESS_DELETE
+                KeyType.ENTER -> AudioManager.FX_KEYPRESS_RETURN
+                else -> AudioManager.FX_KEYPRESS_STANDARD
+            }
+            audioManager?.playSoundEffect(fx)
+        }
+    }
+
+    fun resetTouchState() {
+        cancelLongPressTimers()
+        activeKey?.isPressed = false
+        activeKey = null
+        isTrackpadActive = false
+        hasSpaceMoved = false
+        isPopupActive = false
+        isBackspaceRepeating = false
+        invalidate()
     }
 
     fun reloadLayout() {
@@ -127,11 +155,12 @@ class KeyboardView @JvmOverloads constructor(
         val width = MeasureSpec.getSize(widthMeasureSpec)
         val density = resources.displayMetrics.density
 
-        // Row height adjusted by user settings
-        val baseRowHeight = 54f * density
+        // Row height adjusted by user settings and screen orientation
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val baseRowHeight = if (isLandscape) 38f * density else 54f * density
         val rowHeight = baseRowHeight * settings.keyboardHeight.factor
         val rowCount = rows.size
-        val verticalPadding = (8f * density).roundToInt()
+        val verticalPadding = (if (isLandscape) 4f * density else 8f * density).roundToInt()
 
         val desiredHeight = (rowCount * rowHeight + verticalPadding * 2).roundToInt()
         setMeasuredDimension(width, resolveSize(desiredHeight, heightMeasureSpec))
@@ -331,7 +360,13 @@ class KeyboardView @JvmOverloads constructor(
 
         for (i in activePopupVariants.indices) {
             val variant = activePopupVariants[i]
-            val itemBounds = RectF(currentX, popupTop + 4f * density, currentX + variantWidth, popupBottom - 4f * density)
+            val itemBounds = if (i < variantBoundsPool.size) {
+                variantBoundsPool[i].apply {
+                    set(currentX, popupTop + 4f * density, currentX + variantWidth, popupBottom - 4f * density)
+                }
+            } else {
+                RectF(currentX, popupTop + 4f * density, currentX + variantWidth, popupBottom - 4f * density)
+            }
             variantBounds.add(itemBounds)
 
             if (i == selectedPopupIndex) {
@@ -374,6 +409,8 @@ class KeyboardView @JvmOverloads constructor(
                 if (key != null) {
                     key.isPressed = true
                     performHaptic()
+                    playSound(key.type)
+                    announceKey(key)
                     invalidate()
 
                     when (key.type) {
@@ -451,6 +488,8 @@ class KeyboardView @JvmOverloads constructor(
                         val chosen = activePopupVariants[selectedPopupIndex]
                         actionListener?.onPopupVariantSelected(chosen)
                         performHaptic()
+                        playSound(KeyType.CHARACTER)
+                        announceText(chosen)
                     }
                     activeKey?.isPressed = false
                     activeKey = null
@@ -614,6 +653,7 @@ class KeyboardView @JvmOverloads constructor(
                 isBackspaceRepeating = true
                 actionListener?.onBackspaceRepeat()
                 performHaptic()
+                playSound(KeyType.BACKSPACE)
                 mainHandler.postDelayed(this, backspaceRepeatIntervalMs)
             }
         }
@@ -647,5 +687,35 @@ class KeyboardView @JvmOverloads constructor(
                 HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
             )
         }
+    }
+
+    private fun announceKey(key: Key) {
+        try {
+            val isShifted = shiftState.isShifted()
+            val desc = when (key.type) {
+                KeyType.CHARACTER -> key.getDisplayText(isShifted)
+                KeyType.NUMBER -> key.primaryText
+                KeyType.SPACE -> "Probel"
+                KeyType.BACKSPACE -> "Öçiriş"
+                KeyType.ENTER -> "Kiritiş"
+                KeyType.SHIFT -> when (shiftState) {
+                    ShiftState.OFF -> "Katta harf"
+                    ShiftState.SHIFTED -> "Bosh harf yoqilgan"
+                    ShiftState.CAPS_LOCK -> "Caps lock"
+                }
+                KeyType.SWITCH_SYMBOLS -> "Belgilar"
+                KeyType.SWITCH_PAGE -> "Keyingi sahifa"
+                KeyType.GLOBE -> "Tilni almaştiriş"
+                KeyType.COMMA -> "Vergul"
+                KeyType.PERIOD -> "Nuqta"
+            }
+            announceForAccessibility(desc)
+        } catch (_: Exception) {}
+    }
+
+    private fun announceText(text: String) {
+        try {
+            announceForAccessibility(text)
+        } catch (_: Exception) {}
     }
 }

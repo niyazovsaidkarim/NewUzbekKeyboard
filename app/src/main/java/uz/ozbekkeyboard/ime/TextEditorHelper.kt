@@ -1,6 +1,7 @@
 package uz.ozbekkeyboard.ime
 
 import android.text.InputType
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import java.text.BreakIterator
@@ -10,22 +11,41 @@ object TextEditorHelper {
     fun handleDelete(inputConnection: InputConnection?) {
         if (inputConnection == null) return
 
-        // 1. Check if there is an active selection
-        val selectedText = inputConnection.getSelectedText(0)
-        if (!selectedText.isNullOrEmpty()) {
-            inputConnection.commitText("", 1)
-            return
-        }
+        try {
+            // 1. Check if there is an active selection
+            val selectedText = inputConnection.getSelectedText(0)
+            if (!selectedText.isNullOrEmpty()) {
+                inputConnection.commitText("", 1)
+                return
+            }
 
-        // 2. Inspect text before cursor to safely delete full grapheme clusters
-        val beforeCursor = inputConnection.getTextBeforeCursor(64, 0)
-        if (beforeCursor.isNullOrEmpty()) {
-            inputConnection.deleteSurroundingText(1, 0)
-            return
-        }
+            // 2. Inspect text before cursor to safely delete full grapheme clusters
+            val beforeCursor = inputConnection.getTextBeforeCursor(64, 0)
+            if (beforeCursor.isNullOrEmpty()) {
+                sendFallbackDelete(inputConnection)
+                return
+            }
 
-        val deleteCount = calculateDeleteCount(beforeCursor.toString())
-        inputConnection.deleteSurroundingText(deleteCount, 0)
+            val deleteCount = calculateDeleteCount(beforeCursor.toString())
+            val deleted = inputConnection.deleteSurroundingText(deleteCount, 0)
+            if (!deleted) {
+                // Some custom editors or WebViews return false for deleteSurroundingText, fallback to keyevent
+                sendFallbackDelete(inputConnection)
+            }
+        } catch (_: Exception) {
+            // Robust fallback if IPC or custom InputConnection throws an exception
+            sendFallbackDelete(inputConnection)
+        }
+    }
+
+    private fun sendFallbackDelete(inputConnection: InputConnection?) {
+        if (inputConnection == null) return
+        try {
+            inputConnection.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+            inputConnection.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+        } catch (_: Exception) {
+            // Ignore if client app is completely unresponsive
+        }
     }
 
     /**
@@ -142,36 +162,40 @@ object TextEditorHelper {
     fun shouldAutoCapitalize(inputConnection: InputConnection?, editorInfo: EditorInfo?): Boolean {
         if (inputConnection == null || editorInfo == null) return false
 
-        val inputType = editorInfo.inputType
-        if (inputType and InputType.TYPE_MASK_CLASS != InputType.TYPE_CLASS_TEXT) {
-            return false
-        }
-
-        // Characters flag (e.g. state code, serial number)
-        if (inputType and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS != 0) {
-            return true
-        }
-
-        val textBefore = inputConnection.getTextBeforeCursor(64, 0) ?: return true
-        if (textBefore.isEmpty()) return true
-
-        // Words flag (e.g. Person Name)
-        if (inputType and InputType.TYPE_TEXT_FLAG_CAP_WORDS != 0) {
-            return Character.isWhitespace(textBefore.last())
-        }
-
-        // Sentences flag
-        if (inputType and InputType.TYPE_TEXT_FLAG_CAP_SENTENCES != 0) {
-            var i = textBefore.length - 1
-            while (i >= 0 && Character.isWhitespace(textBefore[i])) {
-                i--
+        return try {
+            val inputType = editorInfo.inputType
+            if (inputType and InputType.TYPE_MASK_CLASS != InputType.TYPE_CLASS_TEXT) {
+                return false
             }
-            if (i < 0) return true // Only whitespaces or empty start of line
-            val endChar = textBefore[i]
-            return endChar == '.' || endChar == '?' || endChar == '!' || endChar == '\n'
-        }
 
-        return false
+            // Characters flag (e.g. state code, serial number)
+            if (inputType and InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS != 0) {
+                return true
+            }
+
+            val textBefore = inputConnection.getTextBeforeCursor(64, 0) ?: return true
+            if (textBefore.isEmpty()) return true
+
+            // Words flag (e.g. Person Name)
+            if (inputType and InputType.TYPE_TEXT_FLAG_CAP_WORDS != 0) {
+                return Character.isWhitespace(textBefore.last())
+            }
+
+            // Sentences flag
+            if (inputType and InputType.TYPE_TEXT_FLAG_CAP_SENTENCES != 0) {
+                var i = textBefore.length - 1
+                while (i >= 0 && Character.isWhitespace(textBefore[i])) {
+                    i--
+                }
+                if (i < 0) return true // Only whitespaces or empty start of line
+                val endChar = textBefore[i]
+                return endChar == '.' || endChar == '?' || endChar == '!' || endChar == '\n'
+            }
+
+            false
+        } catch (_: Exception) {
+            false
+        }
     }
 
     /**
@@ -180,21 +204,28 @@ object TextEditorHelper {
     fun handleSpaceKey(inputConnection: InputConnection?, doubleSpacePeriodEnabled: Boolean): Boolean {
         if (inputConnection == null) return false
 
-        if (doubleSpacePeriodEnabled) {
-            val textBefore = inputConnection.getTextBeforeCursor(2, 0)
-            if (!textBefore.isNullOrEmpty() && textBefore.length >= 2) {
-                val lastChar = textBefore.last()
-                val prevChar = textBefore[textBefore.length - 2]
-                if (lastChar == ' ' && !Character.isWhitespace(prevChar) && prevChar != '.') {
-                    inputConnection.deleteSurroundingText(1, 0)
-                    inputConnection.commitText(". ", 1)
-                    return true
+        return try {
+            if (doubleSpacePeriodEnabled) {
+                val textBefore = inputConnection.getTextBeforeCursor(2, 0)
+                if (!textBefore.isNullOrEmpty() && textBefore.length >= 2) {
+                    val lastChar = textBefore.last()
+                    val prevChar = textBefore[textBefore.length - 2]
+                    if (lastChar == ' ' && !Character.isWhitespace(prevChar) && prevChar != '.') {
+                        inputConnection.deleteSurroundingText(1, 0)
+                        inputConnection.commitText(". ", 1)
+                        return true
+                    }
                 }
             }
-        }
 
-        inputConnection.commitText(" ", 1)
-        return true
+            inputConnection.commitText(" ", 1)
+            true
+        } catch (_: Exception) {
+            try {
+                inputConnection.commitText(" ", 1)
+            } catch (_: Exception) {}
+            true
+        }
     }
 
     /**
@@ -202,19 +233,23 @@ object TextEditorHelper {
      */
     fun extractCurrentWordPrefix(inputConnection: InputConnection?): String {
         if (inputConnection == null) return ""
-        val textBefore = inputConnection.getTextBeforeCursor(32, 0) ?: return ""
-        if (textBefore.isEmpty() || Character.isWhitespace(textBefore.last())) return ""
+        return try {
+            val textBefore = inputConnection.getTextBeforeCursor(32, 0) ?: return ""
+            if (textBefore.isEmpty() || Character.isWhitespace(textBefore.last())) return ""
 
-        var i = textBefore.length - 1
-        while (i >= 0 && !Character.isWhitespace(textBefore[i])) {
-            val c = textBefore[i]
-            if (c in listOf('.', ',', '!', '?', ';', ':', '(', ')', '[', ']', '"', '/')) {
-                break
+            var i = textBefore.length - 1
+            while (i >= 0 && !Character.isWhitespace(textBefore[i])) {
+                val c = textBefore[i]
+                if (c in listOf('.', ',', '!', '?', ';', ':', '(', ')', '[', ']', '"', '/')) {
+                    break
+                }
+                i--
             }
-            i--
-        }
 
-        return textBefore.substring(i + 1)
+            textBefore.substring(i + 1)
+        } catch (_: Exception) {
+            ""
+        }
     }
 
     /**
@@ -222,8 +257,14 @@ object TextEditorHelper {
      */
     fun replaceWordPrefix(inputConnection: InputConnection?, prefix: String, suggestion: String) {
         if (inputConnection == null) return
-        inputConnection.deleteSurroundingText(prefix.length, 0)
-        inputConnection.commitText("$suggestion ", 1)
+        try {
+            inputConnection.deleteSurroundingText(prefix.length, 0)
+            inputConnection.commitText("$suggestion ", 1)
+        } catch (_: Exception) {
+            try {
+                inputConnection.commitText("$suggestion ", 1)
+            } catch (_: Exception) {}
+        }
     }
 
     /**
@@ -237,5 +278,27 @@ object TextEditorHelper {
                 variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
                 info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_NUMBER &&
                 variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
+    }
+
+    /**
+     * Checks if the field is strictly numeric, phone, or date/time.
+     */
+    fun isNumericInput(info: EditorInfo?): Boolean {
+        if (info == null) return false
+        val inputClass = info.inputType and InputType.TYPE_MASK_CLASS
+        return inputClass == InputType.TYPE_CLASS_NUMBER ||
+                inputClass == InputType.TYPE_CLASS_PHONE ||
+                inputClass == InputType.TYPE_CLASS_DATETIME
+    }
+
+    /**
+     * Checks if the field is specialized for email or URI.
+     */
+    fun isEmailOrUrl(info: EditorInfo?): Boolean {
+        if (info == null) return false
+        val variation = info.inputType and InputType.TYPE_MASK_VARIATION
+        return variation == InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS ||
+                variation == InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS ||
+                variation == InputType.TYPE_TEXT_VARIATION_URI
     }
 }

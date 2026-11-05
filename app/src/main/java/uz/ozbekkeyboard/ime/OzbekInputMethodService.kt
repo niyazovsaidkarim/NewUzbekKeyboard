@@ -2,6 +2,7 @@ package uz.ozbekkeyboard.ime
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.KeyEvent
@@ -47,6 +48,9 @@ class OzbekInputMethodService : InputMethodService(), KeyboardActionListener {
         currentEditorInfo = info
 
         applyCurrentSettings()
+        if (TextEditorHelper.isNumericInput(info)) {
+            rootView?.keyboardView?.setKeyboardMode(KeyboardMode.SYMBOLS_1)
+        }
         resolveEnterAction(info)
         resolveAutoCapitalization()
         updateSuggestions()
@@ -54,6 +58,31 @@ class OzbekInputMethodService : InputMethodService(), KeyboardActionListener {
         // Sync clipboard if allowed
         val isSensitive = TextEditorHelper.isPasswordField(info)
         clipboardHelper.syncFromClipboard(settings.clipboardHistoryEnabled, isSensitive)
+    }
+
+    override fun onEvaluateFullscreenMode(): Boolean {
+        // Prevent IME from covering entire screen in landscape mode
+        return false
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        rootView?.keyboardView?.reloadLayout()
+    }
+
+    override fun onFinishInputView(finishingInput: Boolean) {
+        super.onFinishInputView(finishingInput)
+        rootView?.keyboardView?.resetTouchState()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event?.repeatCount == 0) {
+            if (rootView?.isSubpanelShowing() == true) {
+                rootView?.showMainKeyboard()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     private fun applyCurrentSettings() {
