@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="samsung_yellow">#FFD500</color>
+    <color name="samsung_orange">#FF8C00</color>
+    <color name="samsung_dark_bg">#121212</color>
+    <color name="samsung_toolbar_bg">#1C1C1E</color>
+    <color name="samsung_action_key">#FFFFFF</color>
+    <color name="gray_700">#616161</color>
+    <color name="gray_300">#E0E0E0</color>
+</resources>

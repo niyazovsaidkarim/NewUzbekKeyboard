@@ -1,0 +1,11 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.OzbekKeyboard" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#FFD500</item>
+        <item name="colorOnPrimary">#000000</item>
+        <item name="colorSecondary">#FF8C00</item>
+        <item name="android:statusBarColor">#121212</item>
+        <item name="android:navigationBarColor">#121212</item>
+    </style>
+
+    <style name="Theme.OzbekKeyboard" parent="Base.Theme.OzbekKeyboard" />
+</resources>

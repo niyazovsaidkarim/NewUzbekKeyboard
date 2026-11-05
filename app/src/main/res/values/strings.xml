@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">Özbek Keyboard</string>
+    <string name="subtype_uzbek">Özbekcha (Lotin)</string>
+    <string name="space_label">Özbekcha</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">Özbek Keyboard</string>
+    <string name="onboarding_subtitle">Zamonaviy, xavfsiz va qulay O‘zbek lotin klaviaturasi</string>
+    <string name="step_1_title">1. Klaviaturani tizimda yoqing</string>
+    <string name="step_1_desc">Sozlamalarga o‘tib, «Özbek Keyboard»ni faollashtiring</string>
+    <string name="step_1_btn">Tizim sozlamalarini ochish</string>
+    <string name="step_2_title">2. Standart klaviatura sifatida tanlang</string>
+    <string name="step_2_desc">Kirish usulini «Özbek Keyboard»ga almashtiring</string>
+    <string name="step_2_btn">Klaviaturani tanlash</string>
+    <string name="step_3_title">3. Sinab ko‘ring</string>
+    <string name="step_3_desc">Quyidagi maydonga yozib ko‘ring (o -> ö, g -> ğ, s -> ş, c -> ç):</string>
+    <string name="test_hint">Bu yerga yozib ko‘ring...</string>
+    <string name="open_settings">Klaviatura sozlamalari</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Klaviatura sozlamalari</string>
+    <string name="category_appearance">Ko‘rinish va Mavzular</string>
+    <string name="pref_theme">Mavzu</string>
+    <string name="pref_theme_system">Tizimga moslashuvchan</string>
+    <string name="pref_theme_black_yellow">Qora va sariq (Samsung High Contrast)</string>
+    <string name="pref_theme_light">Yorug‘ minimal</string>
+    <string name="pref_theme_dark">Qorong‘i minimal</string>
+    <string name="pref_number_row">Raqamlar qatori</string>
+    <string name="pref_number_row_desc">Klaviatura tepasida 1–0 raqamlar qatorini ko‘rsatish</string>
+    <string name="pref_height">Klaviatura balandligi</string>
+    <string name="pref_height_low">Past</string>
+    <string name="pref_height_normal">O‘rtacha</string>
+    <string name="pref_height_high">Baland</string>
+
+    <string name="category_typing">Yozish qulayliklari</string>
+    <string name="pref_vibration">Tugma bosilganda tebranish</string>
+    <string name="pref_sound">Tugma bosilganda ovoz</string>
+    <string name="pref_popup">Uzoq bosganda belgilar ro‘yxati (ö, ğ, ş, ç)</string>
+    <string name="pref_popup_desc">o, g, s, c harflarini uzoq bosganda maxsus harflarni ko‘rsatish</string>
+    <string name="pref_space_cursor">Bo‘sh joy (Space) trekpadi</string>
+    <string name="pref_space_cursor_desc">Space tugmasini uzoq bosib kursorni boshqarish</string>
+    <string name="pref_autocap">Bosh harflarni avtomatik qo‘yish</string>
+    <string name="pref_double_space_period">Ikki marta Space bosilganda nuqta qo‘yish</string>
+    <string name="pref_suggestions">So‘z tavsiyalari (Lug‘at)</string>
+    <string name="pref_suggestions_desc">O‘zbekcha so‘zlar uchun avtotavsiya</string>
+    <string name="pref_longpress_delay">Uzoq bosish vaqti</string>
+
+    <string name="category_clipboard">Xotira daftari (Clipboard)</string>
+    <string name="pref_clipboard_history">Nusxalangan matnlar tarixi (Opt-in)</string>
+    <string name="pref_clipboard_history_desc">Nusxalangan matnlarni vaqtincha xotirada saqlash</string>
+    <string name="pref_clipboard_clear">Xotirani tozalash</string>
+    <string name="clipboard_empty">Nusxalangan matnlar yo‘q</string>
+    <string name="clipboard_cleared">Xotira tozalandi</string>
+
+    <string name="category_privacy">Xavfsizlik va Maxfiylik</string>
+    <string name="privacy_title">100% Oflayn va Xavfsiz</string>
+    <string name="privacy_desc">Özbek Keyboard internet ruxsatiga (INTERNET) ega emas. Siz kiritgan hech bir ma‘lumot tarmoqqa uzatilmaydi, saqlanmaydi va tahlil qilinmaydi. Parol maydonlarida barcha tavsiyalar to‘liq o‘chiriladi.</string>
+
+    <string name="category_about">Ilova haqida</string>
+    <string name="about_version">Versiya: 1.0.0 (Native Kotlin IME)</string>
+    <string name="about_dev">Lotin alifbosining yangi islohotiga moslangan (Ö, Ğ, Ş, Ç va tutuq belgisi)</string>
+
+    <!-- Toolbar / Panels -->
+    <string name="toolbar_emoji">Emoji</string>
+    <string name="toolbar_translate">Tarjima</string>
+    <string name="toolbar_settings">Sozlamalar</string>
+    <string name="toolbar_clipboard">Vaqtincha xotira</string>
+    <string name="toolbar_more">Ko‘proq</string>
+
+    <string name="translation_notice_title">Oflayn Tarjima</string>
+    <string name="translation_notice_desc">Xavfsizlik va maxfiylik siyosatiga binoan klaviatura internetga ulanmaydi. Matnlar foydalanuvchi roziligisiz hech qayerga yuborilmaydi. Tarjima moduli oflayn model ulangunga qadar o‘chirilgan.</string>
+</resources>
