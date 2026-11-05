@@ -61,7 +61,7 @@ class ClipboardPanelView @JvmOverloads constructor(
         headerLayout.addView(titleView)
 
         val btnClear = Button(context).apply {
-            text = "Tozalash"
+            text = "Tozalaş"
             textSize = 13f
             layoutParams = LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             setBackgroundColor(Color.TRANSPARENT)
@@ -93,13 +93,12 @@ class ClipboardPanelView @JvmOverloads constructor(
     }
 
     private fun onClearClicked() {
-        val helper = ClipboardHelper(context)
-        helper.clearHistory()
-        loadHistory(helper)
+        ClipboardHelper.clearSharedHistory()
+        loadHistory()
     }
 
-    fun loadHistory(helper: ClipboardHelper) {
-        val history = helper.getHistory()
+    fun loadHistory(helper: ClipboardHelper? = null) {
+        val history = ClipboardHelper.getSharedHistory()
         if (history.isEmpty()) {
             emptyView.visibility = View.VISIBLE
             recyclerView.visibility = View.GONE

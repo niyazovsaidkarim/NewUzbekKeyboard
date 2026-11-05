@@ -316,4 +316,11 @@ class OzbekInputMethodService : InputMethodService(), KeyboardActionListener {
             }
         )
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ClipboardHelper.clearSharedHistory()
+        rootView = null
+        currentEditorInfo = null
+    }
 }

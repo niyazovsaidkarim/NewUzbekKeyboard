@@ -268,16 +268,25 @@ object TextEditorHelper {
     }
 
     /**
-     * Checks if the current editor is a password or PIN field.
+     * Checks if the current editor is a password, PIN, or private/incognito field.
      */
     fun isPasswordField(info: EditorInfo?): Boolean {
         if (info == null) return false
+        val inputClass = info.inputType and InputType.TYPE_MASK_CLASS
         val variation = info.inputType and InputType.TYPE_MASK_VARIATION
-        return variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+
+        val isTextPassword = inputClass == InputType.TYPE_CLASS_TEXT && (
+                variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                 variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
-                variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
-                info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_NUMBER &&
+                variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
+        )
+
+        val isNumberPassword = inputClass == InputType.TYPE_CLASS_NUMBER &&
                 variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
+
+        val isNoPersonalizedLearning = (info.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING) != 0
+
+        return isTextPassword || isNumberPassword || isNoPersonalizedLearning
     }
 
     /**

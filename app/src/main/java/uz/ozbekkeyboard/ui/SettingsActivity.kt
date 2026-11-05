@@ -126,12 +126,14 @@ class SettingsActivity : AppCompatActivity() {
         switchClipboardHistory.isChecked = settings.clipboardHistoryEnabled
         switchClipboardHistory.setOnCheckedChangeListener { _, isChecked ->
             settings.setClipboardHistory(isChecked)
+            if (!isChecked) {
+                ClipboardHelper.clearSharedHistory()
+            }
         }
 
         val btnClearClipboard = findViewById<MaterialButton>(R.id.btnClearClipboard)
         btnClearClipboard.setOnClickListener {
-            val helper = ClipboardHelper(this)
-            helper.clearHistory()
+            ClipboardHelper.clearSharedHistory()
             Toast.makeText(this, R.string.clipboard_cleared, Toast.LENGTH_SHORT).show()
         }
     }
