@@ -25,13 +25,9 @@ The keyboard functions **100% offline**: it declares **no internet permission**,
 
 ### Key Features
 
-1. **Dual Orthography Support (Official & Reform):**
-   - **Reformed Latin Characters:** Long-press popups provide instant access to the reformed alphabet characters:
-     - `o → ö` (Uppercase: `O → Ö`)
-     - `g → ğ` (Uppercase: `G → Ğ`)
-     - `s → ş` (Uppercase: `S → Ş`)
-     - `c → ç` (Uppercase: `C → Ç`)
-   - **Official 1995 Orthography:** First-class support for the modifier letter apostrophe / tutuq belgisi (`ʼ` - U+02BC) and traditional digraph typing (`oʻ`, `gʻ`, `sh`, `ch`).
+1. **Dual Orthography Support (Official Standard & Proposed Reform):**
+   - **Official Current Standard (1995 Law):** First-class, default support for the legally established Uzbek Latin alphabet, including the modifier letter apostrophe / tutuq belgisi (`ʼ` - U+02BC) and standard digraphs (`oʻ`, `gʻ`, `sh`, `ch`).
+   - **Proposed Reform Characters (Draft Legislation):** Long-press popups provide forward-compatible, convenient access to the proposed diacritic characters (`o → ö`, `g → ğ`, `s → ş`, `c → ç`, and uppercase equivalents) from the legislative reform draft bills, without disrupting standard QWERTY typing.
 2. **Space Trackpad 2.0:**
    - Long-press or horizontal drag on the Space key activates cursor control with haptic feedback.
    - **Unicode Grapheme Awareness:** Navigates smoothly across multiline text without splitting compound emojis (e.g. 🇺🇿, 👨‍👩‍👧‍👦) or surrogate pairs.
@@ -109,13 +105,9 @@ Klaviatura mutlaqo **oflayn** ishlaydi: **internetga ulanish ruxsati (INTERNET) 
 
 ### Asosiy Imkoniyatlar
 
-1. **Yangi Islohot va Amaldagi Alifbo Uygunligi:**
-   - **Yangi harflar (uzoq bosish orqali):**
-     - `o → ö` (Bosh harfi: `O → Ö`)
-     - `g → ğ` (Bosh harfi: `G → Ğ`)
-     - `s → ş` (Bosh harfi: `S → Ş`)
-     - `c → ç` (Bosh harfi: `C → Ç`)
-   - **Amaldagi alifbo:** Rasmiy tutuq belgisi (`ʼ` - U+02BC) va an’anaviy harf birikmalari (`oʻ`, `gʻ`, `sh`, `ch`) to‘liq qo‘llab-quvvatlanadi.
+1. **Rasmiy Alifbo va Taklif Qilingan Islohot Belgilari:**
+   - **Amaldagi rasmiy alifbo (1995-yilgi qonun):** O‘zbekiston Respublikasining amaldagi qonuniy lotin alifbosi, shu jumladan rasmiy tutuq belgisi (`ʼ` - U+02BC) va an’anaviy harf birikmalari (`oʻ`, `gʻ`, `sh`, `ch`) to‘liq va asosiy tarzda qo‘llab-quvvatlanadi.
+   - **Taklif etilgan islohot harflari (qonun loyihasi):** Yangi muhokama qilinayotgan alifbo loyihasidagi maxsus belgilar (`o → ö`, `g → ğ`, `s → ş`, `c → ç` va ularning bosh harflari) tugmalarni uzoq bosish (long-press) orqali kiritish uchun qulay taqdim etilgan. Bu rasmiy alifboda yozuvchilarga ham, yangi loyihani sinovdan o‘tkazuvchilarga ham teng qulaylik yaratadi.
 2. **Space (Bo‘sh joy) Trekpadi 2.0:**
    - Bo‘sh joy tugmasini uzoq bosish yoki gorizontal siljitish orqali kursor boshqariladi.
    - Matn ichidagi murakkab emojilar (masalan, 🇺🇿) va harf guruhlari buzilmasdan, yaxlit harakatlanadi.
