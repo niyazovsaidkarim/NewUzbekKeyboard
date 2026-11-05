@@ -67,11 +67,13 @@ class KeyboardView @JvmOverloads constructor(
     private var touchDownX: Float = 0f
     private var touchDownY: Float = 0f
 
-    // Trackpad cursor state
+    // Trackpad 2.0 cursor state
     private var isTrackpadActive: Boolean = false
+    private var hasSpaceMoved: Boolean = false
     private var lastTrackpadX: Float = 0f
     private var trackpadAccumulatedDx: Float = 0f
-    private val trackpadThresholdPx: Float = 26f * resources.displayMetrics.density
+    private val trackpadThresholdPx: Float
+        get() = settings.trackpadSensitivity.thresholdDp * resources.displayMetrics.density
 
     // Popup State
     private var isPopupActive: Boolean = false
@@ -113,6 +115,7 @@ class KeyboardView @JvmOverloads constructor(
             cancelLongPressTimers()
             isPopupActive = false
             isTrackpadActive = false
+            hasSpaceMoved = false
             activeKey = null
             reloadLayout()
         }
@@ -288,23 +291,27 @@ class KeyboardView @JvmOverloads constructor(
 
         val key = activeKey!!
         val variantCount = activePopupVariants.size
-        val variantWidth = 42f * density
+        val variantWidth = 44f * density
         val popupHeight = 52f * density
-        val popupWidth = variantWidth * variantCount + 12f * density
+        val popupWidth = variantWidth * variantCount + 14f * density
 
         var popupLeft = key.bounds.centerX() - popupWidth / 2f
-        if (popupLeft < 8f * density) popupLeft = 8f * density
-        if (popupLeft + popupWidth > width - 8f * density) {
-            popupLeft = width - 8f * density - popupWidth
+        if (popupLeft < 6f * density) popupLeft = 6f * density
+        if (popupLeft + popupWidth > width - 6f * density) {
+            popupLeft = width - 6f * density - popupWidth
         }
-        val popupTop = key.bounds.top - popupHeight - 8f * density
+
+        // Avoid clipping: ensure popup sits cleanly above the key without going offscreen
+        val desiredTop = key.bounds.top - popupHeight - 6f * density
+        val minAllowedTop = -42f * density // Clamped to KeyboardRootView toolbar space
+        val popupTop = if (desiredTop < minAllowedTop) minAllowedTop else desiredTop
         val popupRight = popupLeft + popupWidth
         val popupBottom = popupTop + popupHeight
 
         popupBounds.set(popupLeft, popupTop, popupRight, popupBottom)
 
         // Draw shadow/elevation for popup
-        keyShadowPaint.color = Color.argb(90, 0, 0, 0)
+        keyShadowPaint.color = Color.argb(110, 0, 0, 0)
         canvas.drawRoundRect(
             popupBounds.left - 2f,
             popupBounds.top - 2f,
@@ -320,7 +327,7 @@ class KeyboardView @JvmOverloads constructor(
         canvas.drawRoundRect(popupBounds, cornerRadius * 1.5f, cornerRadius * 1.5f, popupBgPaint)
 
         variantBounds.clear()
-        var currentX = popupLeft + 6f * density
+        var currentX = popupLeft + 7f * density
 
         for (i in activePopupVariants.indices) {
             val variant = activePopupVariants[i]
@@ -360,6 +367,7 @@ class KeyboardView @JvmOverloads constructor(
                 touchDownX = x
                 touchDownY = y
                 touchDownTime = SystemClock.uptimeMillis()
+                hasSpaceMoved = false
                 val key = findKeyAt(x, y)
                 activeKey = key
 
@@ -400,6 +408,21 @@ class KeyboardView @JvmOverloads constructor(
                     return true
                 }
 
+                // Check for early space trackpad drag activation
+                if (activeKey?.type == KeyType.SPACE && settings.spaceCursorControl) {
+                    val dx = abs(x - touchDownX)
+                    if (dx > 10f * resources.displayMetrics.density) {
+                        hasSpaceMoved = true
+                        cancelLongPressTimers()
+                        isTrackpadActive = true
+                        lastTrackpadX = x
+                        trackpadAccumulatedDx = 0f
+                        performHaptic()
+                        invalidate()
+                        return true
+                    }
+                }
+
                 // If finger moves significantly away from initial key, cancel popup timer
                 if (activeKey != null) {
                     val dist = Math.hypot((x - touchDownX).toDouble(), (y - touchDownY).toDouble())
@@ -412,8 +435,9 @@ class KeyboardView @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 cancelLongPressTimers()
 
-                if (isTrackpadActive) {
+                if (isTrackpadActive || (activeKey?.type == KeyType.SPACE && hasSpaceMoved)) {
                     isTrackpadActive = false
+                    hasSpaceMoved = false
                     actionListener?.onSpaceTrackpadEnd()
                     activeKey?.isPressed = false
                     activeKey = null
@@ -441,10 +465,13 @@ class KeyboardView @JvmOverloads constructor(
                     releasedKey.isPressed = false
                     val upKey = findKeyAt(x, y)
                     if (upKey == releasedKey) {
-                        handleKeyRelease(releasedKey)
+                        if (releasedKey.type != KeyType.SPACE || !hasSpaceMoved) {
+                            handleKeyRelease(releasedKey)
+                        }
                     }
                 }
 
+                hasSpaceMoved = false
                 activeKey = null
                 invalidate()
                 return true
@@ -521,6 +548,17 @@ class KeyboardView @JvmOverloads constructor(
     }
 
     private fun handlePopupMove(x: Float, y: Float) {
+        val density = resources.displayMetrics.density
+        val key = activeKey
+        if (key != null && y > key.bounds.bottom + 25f * density) {
+            // Dragged too far below the key to cancel
+            if (selectedPopupIndex != -1) {
+                selectedPopupIndex = -1
+                invalidate()
+            }
+            return
+        }
+
         var foundIndex = -1
         for (i in variantBounds.indices) {
             val bounds = variantBounds[i]
@@ -558,11 +596,12 @@ class KeyboardView @JvmOverloads constructor(
         lastTrackpadX = x
         trackpadAccumulatedDx += dx
 
-        if (abs(trackpadAccumulatedDx) >= trackpadThresholdPx) {
-            val steps = (trackpadAccumulatedDx / trackpadThresholdPx).toInt()
+        val threshold = trackpadThresholdPx
+        if (abs(trackpadAccumulatedDx) >= threshold) {
+            val steps = (trackpadAccumulatedDx / threshold).toInt()
             if (steps != 0) {
                 actionListener?.onSpaceTrackpadMove(steps)
-                trackpadAccumulatedDx -= steps * trackpadThresholdPx
+                trackpadAccumulatedDx -= steps * threshold
                 performHaptic()
             }
         }

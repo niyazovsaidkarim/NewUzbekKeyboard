@@ -35,6 +35,8 @@ class KeyboardRootView @JvmOverloads constructor(
     init {
         orientation = VERTICAL
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        clipChildren = false
+        clipToPadding = false
 
         // 1. Toolbar
         toolbarView = ToolbarView(context)
@@ -43,6 +45,8 @@ class KeyboardRootView @JvmOverloads constructor(
         // 2. Content Frame
         contentFrame = FrameLayout(context).apply {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            clipChildren = false
+            clipToPadding = false
         }
 
         keyboardView = KeyboardView(context)

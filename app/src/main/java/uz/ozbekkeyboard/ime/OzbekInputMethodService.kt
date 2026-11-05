@@ -183,8 +183,9 @@ class OzbekInputMethodService : InputMethodService(), KeyboardActionListener {
         val info = currentEditorInfo
 
         if (info != null) {
+            val hasNoEnterAction = (info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION) != 0
             val action = info.imeOptions and EditorInfo.IME_MASK_ACTION
-            if (action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
+            if (!hasNoEnterAction && action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
                 ic.performEditorAction(action)
                 return
             }

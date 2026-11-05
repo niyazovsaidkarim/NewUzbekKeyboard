@@ -3,6 +3,7 @@ package uz.ozbekkeyboard.ime
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import java.text.BreakIterator
 
 object TextEditorHelper {
 
@@ -16,67 +17,86 @@ object TextEditorHelper {
             return
         }
 
-        // 2. Inspect text before cursor to safely delete grapheme clusters & surrogate pairs
-        val beforeCursor = inputConnection.getTextBeforeCursor(4, 0)
+        // 2. Inspect text before cursor to safely delete full grapheme clusters
+        val beforeCursor = inputConnection.getTextBeforeCursor(64, 0)
         if (beforeCursor.isNullOrEmpty()) {
             inputConnection.deleteSurroundingText(1, 0)
             return
         }
 
-        val lastChar = beforeCursor.last()
-        var deleteCount = 1
-
-        if (Character.isLowSurrogate(lastChar) && beforeCursor.length >= 2) {
-            val secondLast = beforeCursor[beforeCursor.length - 2]
-            if (Character.isHighSurrogate(secondLast)) {
-                deleteCount = 2
-            }
-        }
-
-        // Check for variation selector (e.g. U+FE0F in emoji) or combining characters
-        if (beforeCursor.length >= deleteCount + 1) {
-            val prevChar = beforeCursor[beforeCursor.length - deleteCount - 1]
-            if (Character.isSurrogate(prevChar) || Character.getType(prevChar) == Character.NON_SPACING_MARK.toInt()) {
-                deleteCount++
-                if (beforeCursor.length >= deleteCount + 1 && Character.isHighSurrogate(beforeCursor[beforeCursor.length - deleteCount])) {
-                    deleteCount++
-                }
-            }
-        }
-
+        val deleteCount = calculateDeleteCount(beforeCursor.toString())
         inputConnection.deleteSurroundingText(deleteCount, 0)
     }
 
     /**
-     * Handles cursor movement along text horizontally or vertically.
+     * Pure function calculating the number of UTF-16 code units belonging to the
+     * last grapheme cluster before cursor.
+     */
+    fun calculateDeleteCount(textBeforeCursor: String): Int {
+        if (textBeforeCursor.isEmpty()) return 0
+        val iterator = BreakIterator.getCharacterInstance()
+        iterator.setText(textBeforeCursor)
+        val end = iterator.last()
+        val start = iterator.previous()
+        return if (start != BreakIterator.DONE && end > start) {
+            end - start
+        } else {
+            1
+        }
+    }
+
+    /**
+     * Handles cursor movement along text horizontally or across lines.
      * steps: negative for left, positive for right
      */
     fun moveCursor(inputConnection: InputConnection?, steps: Int) {
         if (inputConnection == null || steps == 0) return
 
         try {
-            val textBefore = inputConnection.getTextBeforeCursor(1000, 0) ?: ""
-            val textAfter = inputConnection.getTextAfterCursor(1000, 0) ?: ""
+            val textBefore = inputConnection.getTextBeforeCursor(2048, 0) ?: ""
+            val textAfter = inputConnection.getTextAfterCursor(2048, 0) ?: ""
 
             val currentPos = textBefore.length
-            val totalLen = currentPos + textAfter.length
-
-            var newPos = currentPos + steps
-            if (newPos < 0) newPos = 0
-            if (newPos > totalLen) newPos = totalLen
-
-            // Ensure we don't land in the middle of a surrogate pair
             val fullText = textBefore.toString() + textAfter.toString()
-            if (newPos in 1 until fullText.length) {
-                if (Character.isSurrogate(fullText[newPos]) && Character.isLowSurrogate(fullText[newPos])) {
-                    newPos = if (steps > 0) (newPos + 1).coerceAtMost(totalLen) else (newPos - 1).coerceAtLeast(0)
-                }
-            }
+            if (fullText.isEmpty()) return
 
-            inputConnection.setSelection(newPos, newPos)
+            val targetPos = calculateNewCursorPosition(fullText, currentPos, steps)
+            inputConnection.setSelection(targetPos, targetPos)
         } catch (_: Exception) {
             // Fallback for custom or restrictive editors that don't allow relative cursor selection
         }
+    }
+
+    /**
+     * Pure function calculating the new cursor position after advancing or retreating
+     * by `steps` Unicode grapheme clusters.
+     */
+    fun calculateNewCursorPosition(fullText: String, currentPos: Int, steps: Int): Int {
+        if (fullText.isEmpty() || steps == 0) return currentPos
+        val iterator = BreakIterator.getCharacterInstance()
+        iterator.setText(fullText)
+        var targetPos = currentPos.coerceIn(0, fullText.length)
+
+        if (steps > 0) {
+            for (i in 0 until steps) {
+                val next = iterator.following(targetPos)
+                if (next == BreakIterator.DONE) {
+                    targetPos = fullText.length
+                    break
+                }
+                targetPos = next
+            }
+        } else {
+            for (i in 0 until -steps) {
+                val prev = iterator.preceding(targetPos)
+                if (prev == BreakIterator.DONE) {
+                    targetPos = 0
+                    break
+                }
+                targetPos = prev
+            }
+        }
+        return targetPos
     }
 
     /**
@@ -148,35 +168,37 @@ object TextEditorHelper {
         val textBefore = inputConnection.getTextBeforeCursor(32, 0) ?: return ""
         if (textBefore.isEmpty() || Character.isWhitespace(textBefore.last())) return ""
 
-        var start = textBefore.length - 1
-        while (start >= 0) {
-            val c = textBefore[start]
-            if (Character.isWhitespace(c) || isPunctuation(c)) {
+        var i = textBefore.length - 1
+        while (i >= 0 && !Character.isWhitespace(textBefore[i])) {
+            val c = textBefore[i]
+            if (c in listOf('.', ',', '!', '?', ';', ':', '(', ')', '[', ']', '"', '/')) {
                 break
             }
-            start--
+            i--
         }
-        return textBefore.substring(start + 1)
+
+        return textBefore.substring(i + 1)
     }
 
-    private fun isPunctuation(c: Char): Boolean {
-        return c in listOf(',', '.', '!', '?', ':', ';', '(', ')', '[', ']', '{', '}', '/', '\\', '"', '+', '=', '-')
-    }
-
-    fun replaceWordPrefix(inputConnection: InputConnection?, oldPrefix: String, newWord: String) {
+    /**
+     * Replaces the currently typed word prefix with the selected suggestion.
+     */
+    fun replaceWordPrefix(inputConnection: InputConnection?, prefix: String, suggestion: String) {
         if (inputConnection == null) return
-        inputConnection.deleteSurroundingText(oldPrefix.length, 0)
-        inputConnection.commitText("$newWord ", 1)
+        inputConnection.deleteSurroundingText(prefix.length, 0)
+        inputConnection.commitText("$suggestion ", 1)
     }
 
-    fun isPasswordField(editorInfo: EditorInfo?): Boolean {
-        if (editorInfo == null) return false
-        val inputType = editorInfo.inputType
-        val variation = inputType and InputType.TYPE_MASK_VARIATION
+    /**
+     * Checks if the current editor is a password or PIN field.
+     */
+    fun isPasswordField(info: EditorInfo?): Boolean {
+        if (info == null) return false
+        val variation = info.inputType and InputType.TYPE_MASK_VARIATION
         return variation == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                 variation == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
                 variation == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
-                inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_NUMBER &&
+                info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_NUMBER &&
                 variation == InputType.TYPE_NUMBER_VARIATION_PASSWORD
     }
 }

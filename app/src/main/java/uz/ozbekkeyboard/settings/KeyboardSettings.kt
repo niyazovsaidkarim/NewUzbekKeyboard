@@ -37,6 +37,18 @@ enum class KeyboardHeight(val id: String, val factor: Float) {
     }
 }
 
+enum class TrackpadSensitivity(val id: String, val thresholdDp: Float) {
+    SLOW("slow", 32f),
+    NORMAL("normal", 24f),
+    FAST("fast", 16f);
+
+    companion object {
+        fun fromId(id: String?): TrackpadSensitivity {
+            return entries.firstOrNull { it.id == id } ?: NORMAL
+        }
+    }
+}
+
 class KeyboardSettings(private val context: Context) {
 
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -50,6 +62,7 @@ class KeyboardSettings(private val context: Context) {
         val KEY_LONG_PRESS_POPUP = booleanPreferencesKey("long_press_popup")
         val KEY_LONG_PRESS_DURATION_MS = intPreferencesKey("long_press_duration_ms")
         val KEY_SPACE_CURSOR = booleanPreferencesKey("space_cursor")
+        val KEY_TRACKPAD_SENSITIVITY = stringPreferencesKey("trackpad_sensitivity")
         val KEY_AUTO_CAPITALIZATION = booleanPreferencesKey("auto_capitalization")
         val KEY_DOUBLE_SPACE_PERIOD = booleanPreferencesKey("double_space_period")
         val KEY_KEY_PREVIEW = booleanPreferencesKey("key_preview")
@@ -73,6 +86,8 @@ class KeyboardSettings(private val context: Context) {
     @Volatile var longPressDurationMs: Int = 400
         private set
     @Volatile var spaceCursorControl: Boolean = true
+        private set
+    @Volatile var trackpadSensitivity: TrackpadSensitivity = TrackpadSensitivity.NORMAL
         private set
     @Volatile var autoCapitalization: Boolean = true
         private set
@@ -105,6 +120,7 @@ class KeyboardSettings(private val context: Context) {
         longPressPopup = prefs[KEY_LONG_PRESS_POPUP] ?: true
         longPressDurationMs = prefs[KEY_LONG_PRESS_DURATION_MS] ?: 400
         spaceCursorControl = prefs[KEY_SPACE_CURSOR] ?: true
+        trackpadSensitivity = TrackpadSensitivity.fromId(prefs[KEY_TRACKPAD_SENSITIVITY])
         autoCapitalization = prefs[KEY_AUTO_CAPITALIZATION] ?: true
         doubleSpacePeriod = prefs[KEY_DOUBLE_SPACE_PERIOD] ?: true
         keyPreview = prefs[KEY_KEY_PREVIEW] ?: false
@@ -168,6 +184,13 @@ class KeyboardSettings(private val context: Context) {
         }
     }
 
+    fun setTrackpadSensitivity(sensitivity: TrackpadSensitivity) {
+        trackpadSensitivity = sensitivity
+        scope.launch {
+            context.dataStore.edit { it[KEY_TRACKPAD_SENSITIVITY] = sensitivity.id }
+        }
+    }
+
     fun setAutoCapitalization(enabled: Boolean) {
         autoCapitalization = enabled
         scope.launch {
@@ -212,6 +235,7 @@ class KeyboardSettings(private val context: Context) {
         longPressPopup = true
         longPressDurationMs = 400
         spaceCursorControl = true
+        trackpadSensitivity = TrackpadSensitivity.NORMAL
         autoCapitalization = true
         doubleSpacePeriod = true
         keyPreview = false
